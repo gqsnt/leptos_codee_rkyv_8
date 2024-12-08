@@ -743,7 +743,7 @@ where
 }
 
 #[cfg(feature = "bitcode")]
-use codee::binary::bitcode::BitcodeCodec;
+use codee::binary::BitcodeCodec;
 
 #[cfg(feature = "bitcode")]
 impl<T> ArcResource<T, BitcodeCodec>

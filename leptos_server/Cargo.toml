@@ -11,7 +11,7 @@ edition.workspace = true
 
 [dependencies]
 base64 = "0.22.1"
-codee = { git = "https://github.com/gqsnt/codee_rkyv_8", rev="f5b38911da7797cce6e0c5f5b70dd55ec9fca942", features = ["json_serde"] }
+codee = { git = "https://github.com/gqsnt/codee_rkyv_8", rev="c50fa085da12e90bd956980562d823941014ada0", features = ["json_serde"] }
 hydration_context = { workspace = true }
 reactive_graph = { workspace = true, features = ["hydration"] }
 server_fn = { workspace = true }
