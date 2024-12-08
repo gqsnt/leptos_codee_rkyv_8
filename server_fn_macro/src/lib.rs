@@ -469,6 +469,7 @@ pub fn server_macro_impl(
     enum PathInfo {
         Serde,
         Rkyv,
+        Bitcode,
         None,
     }
 
@@ -477,6 +478,12 @@ pub fn server_macro_impl(
             PathInfo::Rkyv,
             quote! {
                 Clone, #server_fn_path::rkyv::Archive, #server_fn_path::rkyv::Serialize, #server_fn_path::rkyv::Deserialize
+            },
+        ),
+        Some("Bitcode") => (
+            PathInfo::Rkyv,
+            quote! {
+                Clone, #server_fn_path::bitcode::Encode, #server_fn_path::bitcode::Decode
             },
         ),
         Some("MultipartFormData")
@@ -506,6 +513,7 @@ pub fn server_macro_impl(
             #[serde(crate = #serde_path)]
         },
         PathInfo::Rkyv => quote! {},
+        PathInfo::Bitcode => quote! {},
         PathInfo::None => quote! {},
     };
 
