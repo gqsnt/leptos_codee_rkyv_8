@@ -35,7 +35,7 @@ where
 impl<CustErr, T, Request> FromReq<Bitcode, Request, CustErr> for T
 where
     Request: Req<CustErr> + Send + 'static,
-    T:for <'a> Decode<'a>,
+    T:DecodeOwned,
 {
     async fn from_req(req: Request) -> Result<Self, ServerFnError<CustErr>> {
         let body_bytes = req.try_into_bytes().await?;
@@ -57,7 +57,7 @@ where
 impl<CustErr, T, Response> FromRes<Bitcode, Response, CustErr> for T
 where
     Response: ClientRes<CustErr> + Send,
-    T: for <'a> Decode<'a> + Send,
+    T: DecodeOwned + Send,
 {
     async fn from_res(res: Response) -> Result<Self, ServerFnError<CustErr>> {
         let data = res.try_into_bytes().await?;
