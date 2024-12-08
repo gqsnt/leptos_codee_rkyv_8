@@ -44,7 +44,7 @@ use std::{
     },
     task::{Context, Poll, Waker},
 };
-use server_fn::codec::Bitcode;
+
 
 /// A reference-counted resource that only loads once.
 ///
@@ -483,16 +483,16 @@ where
 }
 
 #[cfg(feature = "bitcode")]
-impl<T> ArcOnceResource<T, Bitcode>
+impl<T> ArcOnceResource<T, BitcodeCodec>
 where
     T: Send + Sync + 'static,
-    Bitcode: Encoder<T> + Decoder<T>,
-    <Bitcode as Encoder<T>>::Error: Debug,
-    <Bitcode as Decoder<T>>::Error: Debug,
-    <<Bitcode as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
+    BitcodeCodec: Encoder<T> + Decoder<T>,
+    <BitcodeCodec as Encoder<T>>::Error: Debug,
+    <BitcodeCodec as Decoder<T>>::Error: Debug,
+    <<BitcodeCodec as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
         Debug,
-    <Bitcode as Encoder<T>>::Encoded: IntoEncodedString,
-    <Bitcode as Decoder<T>>::Encoded: FromEncodedStr,
+    <BitcodeCodec as Encoder<T>>::Encoded: IntoEncodedString,
+    <BitcodeCodec as Decoder<T>>::Encoded: FromEncodedStr,
 {
     /// Creates a resource using [`BitcodeCodec`] for encoding/decoding the value.
     #[track_caller]
@@ -846,16 +846,16 @@ where
 
 
 #[cfg(feature = "bitcode")]
-impl<T> OnceResource<T, Bitcode>
+impl<T> OnceResource<T, BitcodeCodec>
 where
     T: Send + Sync + 'static,
-    Bitcode: Encoder<T> + Decoder<T>,
-    <Bitcode as Encoder<T>>::Error: Debug,
-    <Bitcode as Decoder<T>>::Error: Debug,
-    <<Bitcode as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
+    BitcodeCodec: Encoder<T> + Decoder<T>,
+    <BitcodeCodec as Encoder<T>>::Error: Debug,
+    <BitcodeCodec as Decoder<T>>::Error: Debug,
+    <<BitcodeCodec as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
         Debug,
-    <Bitcode as Encoder<T>>::Encoded: IntoEncodedString,
-    <Bitcode as Decoder<T>>::Encoded: FromEncodedStr,
+    <BitcodeCodec as Encoder<T>>::Encoded: IntoEncodedString,
+    <BitcodeCodec as Decoder<T>>::Encoded: FromEncodedStr,
 {
     /// Creates a resource using [`BitcodeCodec`] for encoding/decoding the value.
     #[track_caller]

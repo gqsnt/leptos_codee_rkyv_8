@@ -19,7 +19,6 @@ use std::{
     marker::PhantomData,
     ops::{Deref, DerefMut},
 };
-use server_fn::codec::Bitcode;
 
 /// A smart pointer that allows you to share identical, synchronously-loaded data between the
 /// server and the client.
@@ -171,14 +170,14 @@ where
 }
 
 #[cfg(feature = "bitcode")]
-impl<T> SharedValue<T, Bitcode>
+impl<T> SharedValue<T, BitcodeCodec>
 where
-    Bitcode: Encoder<T> + Decoder<T>,
-    <Bitcode as Encoder<T>>::Error: Debug,
-    <Bitcode as Decoder<T>>::Error: Debug,
-    <Bitcode as Encoder<T>>::Encoded: IntoEncodedString,
-    <Bitcode as Decoder<T>>::Encoded: FromEncodedStr,
-    <<Bitcode as codee::Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
+    BitcodeCodec: Encoder<T> + Decoder<T>,
+    <BitcodeCodec as Encoder<T>>::Error: Debug,
+    <BitcodeCodec as Decoder<T>>::Error: Debug,
+    <BitcodeCodec as Encoder<T>>::Encoded: IntoEncodedString,
+    <BitcodeCodec as Decoder<T>>::Encoded: FromEncodedStr,
+    <<BitcodeCodec as codee::Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
         Debug,
 {
     /// Wraps the initial value.
