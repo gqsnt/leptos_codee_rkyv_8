@@ -766,7 +766,7 @@ where
     /// a `Future` whose value will be serialized from the server to the client. If you are on
     /// the client, the initial value will be deserialized without re-running that async task.
     #[track_caller]
-    pub fn new_rkyv<S, Fut>(
+    pub fn new_bitcode<S, Fut>(
         source: impl Fn() -> S + Send + Sync + 'static,
         fetcher: impl Fn(S) -> Fut + Send + Sync + 'static,
     ) -> Self
@@ -792,7 +792,7 @@ where
     /// This is useful if you need their data to set HTML document metadata or information that
     /// needs to appear in HTTP headers.
     #[track_caller]
-    pub fn new_rkyv_blocking<S, Fut>(
+    pub fn new_bitcode_blocking<S, Fut>(
         source: impl Fn() -> S + Send + Sync + 'static,
         fetcher: impl Fn(S) -> Fut + Send + Sync + 'static,
     ) -> Self
