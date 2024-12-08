@@ -4,6 +4,7 @@ use crate::codec::{Encoding, FromReq, FromRes, IntoReq, IntoRes};
 use crate::request::{ClientReq, Req};
 use crate::response::{ClientRes, Res};
 use crate::ServerFnError;
+use bitcode::*;
 
 pub struct Bitcode;
 
@@ -26,7 +27,7 @@ where
             path,
             accepts,
             Bitcode::CONTENT_TYPE,
-            Bytes::from(bitcode::encode(&self)),
+            Bytes::from(encode(&self)),
         )
     }
 }
@@ -34,11 +35,11 @@ where
 impl<CustErr, T, Request> FromReq<Bitcode, Request, CustErr> for T
 where
     Request: Req<CustErr> + Send + 'static,
-    T: bitcode::Decode,
+    T: Decode,
 {
     async fn from_req(req: Request) -> Result<Self, ServerFnError<CustErr>> {
         let body_bytes = req.try_into_bytes().await?;
-        bitcode::decode(body_bytes.as_ref())
+        decode(body_bytes.as_ref())
             .map_err(|e| ServerFnError::Args(e.to_string()))
     }
 }
@@ -46,13 +47,10 @@ where
 impl<CustErr, T, Response> IntoRes<Bitcode, Response, CustErr> for T
 where
     Response: Res<CustErr>,
-    T: bitcode::Encode + Send,
+    T: Encode + Send,
 {
     async fn into_res(self) -> Result<Response, ServerFnError<CustErr>> {
-        let mut buffer: Vec<u8> = Vec::new();
-        ciborium::ser::into_writer(&self, &mut buffer)
-            .map_err(|e| ServerFnError::Serialization(e.to_string()))?;
-        Response::try_from_bytes(Bitcode::CONTENT_TYPE, Bytes::from(bitcode::encode(&self)))
+        Response::try_from_bytes(Bitcode::CONTENT_TYPE, Bytes::from(encode(&self)))
     }
 }
 
@@ -63,7 +61,7 @@ where
 {
     async fn from_res(res: Response) -> Result<Self, ServerFnError<CustErr>> {
         let data = res.try_into_bytes().await?;
-        bitcode::decode(data.as_ref())
+        decode(data.as_ref())
             .map_err(|e| ServerFnError::Args(e.to_string()))
     }
 }

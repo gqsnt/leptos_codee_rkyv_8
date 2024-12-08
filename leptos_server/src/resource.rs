@@ -742,17 +742,19 @@ where
     }
 }
 
+#[cfg(feature = "bitcode")]
+use codee::binary::bitcode::BitcodeCodec;
 
 #[cfg(feature = "bitcode")]
-impl<T> ArcResource<T, codee::binary::bitcode::BitCodeCodec>
+impl<T> ArcResource<T, BitcodeCodec>
 where
-    codee::binary::bitcode::BitCodeCodec: Encoder<T> + Decoder<T>,
-    <codee::binary::bitcode::BitCodeCodec as Encoder<T>>::Error: Debug,
-    <codee::binary::bitcode::BitCodeCodec as Decoder<T>>::Error: Debug,
-    <<codee::binary::bitcode::BitCodeCodec as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
+    BitcodeCodec: Encoder<T> + Decoder<T>,
+    <BitcodeCodec as Encoder<T>>::Error: Debug,
+    <BitcodeCodec as Decoder<T>>::Error: Debug,
+    <<BitcodeCodec as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
     Debug,
-    <codee::binary::bitcode::BitCodeCodec as Encoder<T>>::Encoded: IntoEncodedString,
-    <codee::binary::bitcode::BitCodeCodec as Decoder<T>>::Encoded: FromEncodedStr,
+    <BitcodeCodec as Encoder<T>>::Encoded: IntoEncodedString,
+    <BitcodeCodec as Decoder<T>>::Encoded: FromEncodedStr,
 {
     /// Creates a new resource with the encoding [`BitCodeCodec`].
     ///
