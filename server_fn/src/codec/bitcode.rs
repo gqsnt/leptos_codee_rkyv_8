@@ -16,7 +16,7 @@ impl Encoding for Bitcode {
 impl<CustErr, T, Request> IntoReq<Bitcode, Request, CustErr> for T
 where
     Request: ClientReq<CustErr>,
-    T: bitcode::Encode + Send,
+    T: Encode + Send,
 {
     fn into_req(
         self,
@@ -35,7 +35,7 @@ where
 impl<CustErr, T, Request> FromReq<Bitcode, Request, CustErr> for T
 where
     Request: Req<CustErr> + Send + 'static,
-    T: DecodeOwned,
+    T:for <'a> Decode<'a>,
 {
     async fn from_req(req: Request) -> Result<Self, ServerFnError<CustErr>> {
         let body_bytes = req.try_into_bytes().await?;
@@ -57,11 +57,11 @@ where
 impl<CustErr, T, Response> FromRes<Bitcode, Response, CustErr> for T
 where
     Response: ClientRes<CustErr> + Send,
-    T: DecodeOwned + Send,
+    T: for <'a> Decode<'a> + Send,
 {
     async fn from_res(res: Response) -> Result<Self, ServerFnError<CustErr>> {
         let data = res.try_into_bytes().await?;
         decode(data.as_ref())
-            .map_err(|e| ServerFnError::Args(e.to_string()))
+            .map_err(|e| ServerFnError::Deserialization(e.to_string()))
     }
 }
