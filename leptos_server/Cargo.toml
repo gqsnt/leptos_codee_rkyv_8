@@ -38,6 +38,7 @@ serde-wasm-bindgen = ["codee/json_serde_wasm"]
 serde-lite = ["codee/serde_lite"]
 tachys = ["dep:tachys"]
 tracing = ["dep:tracing"]
+bitcode=["codee/bitcode"]
 
 [package.metadata.cargo-all-features]
 denylist = ["tracing"]

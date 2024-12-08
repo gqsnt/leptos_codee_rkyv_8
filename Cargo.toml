@@ -209,8 +209,8 @@ web-sys = {version = "0.3.74", features = [
   "HtmlTemplateElement",
   "HtmlOptionElement",
 ]}
-
 rkyv = "0.8"
+bitcode="0.6"
 
 
 

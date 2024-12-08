@@ -742,6 +742,67 @@ where
     }
 }
 
+
+#[cfg(feature = "bitcode")]
+impl<T> ArcResource<T, codee::binary::bitcode::BitCodeCodec>
+where
+    codee::binary::bitcode::BitCodeCodec: Encoder<T> + Decoder<T>,
+    <codee::binary::bitcode::BitCodeCodec as Encoder<T>>::Error: Debug,
+    <codee::binary::bitcode::BitCodeCodec as Decoder<T>>::Error: Debug,
+    <<codee::binary::bitcode::BitCodeCodec as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
+    Debug,
+    <codee::binary::bitcode::BitCodeCodec as Encoder<T>>::Encoded: IntoEncodedString,
+    <codee::binary::bitcode::BitCodeCodec as Decoder<T>>::Encoded: FromEncodedStr,
+{
+    /// Creates a new resource with the encoding [`BitCodeCodec`].
+    ///
+    /// This takes a `source` function and a `fetcher`. The resource memoizes and reactively tracks
+    /// the value returned by `source`. Whenever that value changes, it will run the `fetcher` to
+    /// generate a new [`Future`] to load data.
+    ///
+    /// On creation, if you are on the server, this will run the `fetcher` once to generate
+    /// a `Future` whose value will be serialized from the server to the client. If you are on
+    /// the client, the initial value will be deserialized without re-running that async task.
+    #[track_caller]
+    pub fn new_rkyv<S, Fut>(
+        source: impl Fn() -> S + Send + Sync + 'static,
+        fetcher: impl Fn(S) -> Fut + Send + Sync + 'static,
+    ) -> Self
+    where
+        S: PartialEq + Clone + Send + Sync + 'static,
+        T: Send + Sync + 'static,
+        Fut: Future<Output = T> + Send + 'static,
+    {
+        ArcResource::new_with_options(source, fetcher, false)
+    }
+
+    /// Creates a new blocking resource with the encoding [`RkyvCodec`].
+    ///
+    /// This takes a `source` function and a `fetcher`. The resource memoizes and reactively tracks
+    /// the value returned by `source`. Whenever that value changes, it will run the `fetcher` to
+    /// generate a new [`Future`] to load data.
+    ///
+    /// On creation, if you are on the server, this will run the `fetcher` once to generate
+    /// a `Future` whose value will be serialized from the server to the client. If you are on
+    /// the client, the initial value will be deserialized without re-running that async task.
+    ///
+    /// Blocking resources prevent any of the HTTP response from being sent until they have loaded.
+    /// This is useful if you need their data to set HTML document metadata or information that
+    /// needs to appear in HTTP headers.
+    #[track_caller]
+    pub fn new_rkyv_blocking<S, Fut>(
+        source: impl Fn() -> S + Send + Sync + 'static,
+        fetcher: impl Fn(S) -> Fut + Send + Sync + 'static,
+    ) -> Self
+    where
+        S: PartialEq + Clone + Send + Sync + 'static,
+        T: Send + Sync + 'static,
+        Fut: Future<Output = T> + Send + 'static,
+    {
+        ArcResource::new_with_options(source, fetcher, true)
+    }
+}
+
 impl<T, Ser> IntoFuture for ArcResource<T, Ser>
 where
     T: Clone + 'static,

@@ -34,6 +34,9 @@ mod rkyv;
 #[cfg(feature = "rkyv")]
 pub use rkyv::*;
 
+#[cfg(feature = "bitcode")]
+mod bitcode;
+
 #[cfg(feature = "url")]
 mod url;
 #[cfg(feature = "url")]
