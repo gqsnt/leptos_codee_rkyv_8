@@ -4,6 +4,8 @@ use crate::{
 };
 #[cfg(feature = "rkyv")]
 use codee::binary::RkyvCodec;
+#[cfg(feature = "bitcode")]
+use codee::binary::BitcodeCodec;
 #[cfg(feature = "serde-wasm-bindgen")]
 use codee::string::JsonSerdeWasmCodec;
 #[cfg(feature = "miniserde")]
@@ -42,6 +44,7 @@ use std::{
     },
     task::{Context, Poll, Waker},
 };
+use server_fn::codec::Bitcode;
 
 /// A reference-counted resource that only loads once.
 ///
@@ -479,6 +482,37 @@ where
     }
 }
 
+#[cfg(feature = "bitcode")]
+impl<T> ArcOnceResource<T, Bitcode>
+where
+    T: Send + Sync + 'static,
+    Bitcode: Encoder<T> + Decoder<T>,
+    <Bitcode as Encoder<T>>::Error: Debug,
+    <Bitcode as Decoder<T>>::Error: Debug,
+    <<Bitcode as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
+        Debug,
+    <Bitcode as Encoder<T>>::Encoded: IntoEncodedString,
+    <Bitcode as Decoder<T>>::Encoded: FromEncodedStr,
+{
+    /// Creates a resource using [`BitcodeCodec`] for encoding/decoding the value.
+    #[track_caller]
+    pub fn new_bitcode(fut: impl Future<Output = T> + Send + 'static) -> Self {
+        ArcOnceResource::new_with_options(fut, false)
+    }
+
+    /// Creates a blocking resource using [`BitcodeCodec`] for encoding/decoding the value.
+    ///
+    /// Blocking resources prevent any of the HTTP response from being sent until they have loaded.
+    /// This is useful if you need their data to set HTML document metadata or information that
+    /// needs to appear in HTTP headers.
+    #[track_caller]
+    pub fn new_bitcode_blocking(
+        fut: impl Future<Output = T> + Send + 'static,
+    ) -> Self {
+        ArcOnceResource::new_with_options(fut, true)
+    }
+}
+
 /// A resource that only loads once.
 ///
 /// Resources allow asynchronously loading data and serializing it from the server to the client,
@@ -804,6 +838,38 @@ where
     /// needs to appear in HTTP headers.
     #[track_caller]
     pub fn new_rkyv_blocking(
+        fut: impl Future<Output = T> + Send + 'static,
+    ) -> Self {
+        OnceResource::new_with_options(fut, true)
+    }
+}
+
+
+#[cfg(feature = "bitcode")]
+impl<T> OnceResource<T, Bitcode>
+where
+    T: Send + Sync + 'static,
+    Bitcode: Encoder<T> + Decoder<T>,
+    <Bitcode as Encoder<T>>::Error: Debug,
+    <Bitcode as Decoder<T>>::Error: Debug,
+    <<Bitcode as Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
+        Debug,
+    <Bitcode as Encoder<T>>::Encoded: IntoEncodedString,
+    <Bitcode as Decoder<T>>::Encoded: FromEncodedStr,
+{
+    /// Creates a resource using [`BitcodeCodec`] for encoding/decoding the value.
+    #[track_caller]
+    pub fn new_bitcode(fut: impl Future<Output = T> + Send + 'static) -> Self {
+        OnceResource::new_with_options(fut, false)
+    }
+
+    /// Creates a blocking resource using [`BitcodeCodec`] for encoding/decoding the value.
+    ///
+    /// Blocking resources prevent any of the HTTP response from being sent until they have loaded.
+    /// This is useful if you need their data to set HTML document metadata or information that
+    /// needs to appear in HTTP headers.
+    #[track_caller]
+    pub fn new_bitcode_blocking(
         fut: impl Future<Output = T> + Send + 'static,
     ) -> Self {
         OnceResource::new_with_options(fut, true)

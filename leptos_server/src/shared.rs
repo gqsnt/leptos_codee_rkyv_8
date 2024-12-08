@@ -1,6 +1,8 @@
 use crate::{FromEncodedStr, IntoEncodedString};
 #[cfg(feature = "rkyv")]
 use codee::binary::RkyvCodec;
+#[cfg(feature = "bitcode")]
+use codee::binary::BitcodeCodec;
 #[cfg(feature = "serde-wasm-bindgen")]
 use codee::string::JsonSerdeWasmCodec;
 #[cfg(feature = "miniserde")]
@@ -17,6 +19,7 @@ use std::{
     marker::PhantomData,
     ops::{Deref, DerefMut},
 };
+use server_fn::codec::Bitcode;
 
 /// A smart pointer that allows you to share identical, synchronously-loaded data between the
 /// server and the client.
@@ -163,6 +166,28 @@ where
     ///
     /// This uses the [`RkyvCodec`] encoding.
     pub fn new_rkyv(initial: impl FnOnce() -> T) -> Self {
+        SharedValue::new_with_encoding(initial)
+    }
+}
+
+#[cfg(feature = "bitcode")]
+impl<T> SharedValue<T, Bitcode>
+where
+    Bitcode: Encoder<T> + Decoder<T>,
+    <Bitcode as Encoder<T>>::Error: Debug,
+    <Bitcode as Decoder<T>>::Error: Debug,
+    <Bitcode as Encoder<T>>::Encoded: IntoEncodedString,
+    <Bitcode as Decoder<T>>::Encoded: FromEncodedStr,
+    <<Bitcode as codee::Decoder<T>>::Encoded as FromEncodedStr>::DecodingError:
+        Debug,
+{
+    /// Wraps the initial value.
+    ///
+    /// If this is on the server, the function will be invoked and the value serialized. When it runs
+    /// on the client, it will be deserialized without running the function again.
+    ///
+    /// This uses the [`BitcodeCodec`] encoding.
+    pub fn new_bitcode(initial: impl FnOnce() -> T) -> Self {
         SharedValue::new_with_encoding(initial)
     }
 }

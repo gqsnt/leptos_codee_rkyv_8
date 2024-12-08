@@ -1,6 +1,8 @@
 use crate::{FromEncodedStr, IntoEncodedString};
 #[cfg(feature = "rkyv")]
 use codee::binary::RkyvCodec;
+#[cfg(feature = "bitcode")]
+use codee::binary::BitcodeCodec;
 #[cfg(feature = "serde-wasm-bindgen")]
 use codee::string::JsonSerdeWasmCodec;
 #[cfg(feature = "miniserde")]
@@ -742,8 +744,6 @@ where
     }
 }
 
-#[cfg(feature = "bitcode")]
-use codee::binary::BitcodeCodec;
 
 #[cfg(feature = "bitcode")]
 impl<T> ArcResource<T, BitcodeCodec>
@@ -778,7 +778,7 @@ where
         ArcResource::new_with_options(source, fetcher, false)
     }
 
-    /// Creates a new blocking resource with the encoding [`RkyvCodec`].
+    /// Creates a new blocking resource with the encoding [`BitcodeCodec`].
     ///
     /// This takes a `source` function and a `fetcher`. The resource memoizes and reactively tracks
     /// the value returned by `source`. Whenever that value changes, it will run the `fetcher` to
@@ -1303,7 +1303,7 @@ where
     <BitcodeCodec as Decoder<T>>::Encoded: FromEncodedStr,
     T: Send + Sync,
 {
-    /// Creates a new resource with the encoding [`RkyvCodec`].
+    /// Creates a new resource with the encoding [`BitcodeCodec`].
     ///
     /// This takes a `source` function and a `fetcher`. The resource memoizes and reactively tracks
     /// the value returned by `source`. Whenever that value changes, it will run the `fetcher` to
